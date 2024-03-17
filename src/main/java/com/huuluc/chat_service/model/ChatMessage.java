@@ -11,7 +11,7 @@ import java.util.Date;
 @Setter
 @Getter
 @Builder
-@Document
+@Document(collection = "chat_message")
 public class ChatMessage {
     @Id
     private String id;
