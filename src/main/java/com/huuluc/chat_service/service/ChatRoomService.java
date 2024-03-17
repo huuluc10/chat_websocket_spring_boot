@@ -6,15 +6,35 @@ import com.huuluc.chat_service.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ChatRoomService{
     private final ChatRoomRepository chatRoomRepository;
 
-    public ChatRoom saveChatRoom(CreateChatRoomRequest request){
+    public ChatRoom getChatRoomById(String chatId){
+        return chatRoomRepository.findById(chatId).orElse(null);
+    }
+
+    public ChatRoom updateChatRoom(CreateChatRoomRequest request){
         ChatRoom chatRoom = ChatRoom.builder()
                 .participants(request.getParticipants())
+                .lastMessage(request.getLastMessage())
                 .build();
         return chatRoomRepository.save(chatRoom);
     }
+
+    public ChatRoom createChatRoom(CreateChatRoomRequest request){
+        ChatRoom chatRoom = ChatRoom.builder()
+                .participants(request.getParticipants())
+                .lastMessage(request.getLastMessage())
+                .build();
+        return chatRoomRepository.save(chatRoom);
+    }
+
+    public ChatRoom existsByParticipants(List<String> participants) {
+        return chatRoomRepository.existsByParticipants(participants);
+    }
+
 }
