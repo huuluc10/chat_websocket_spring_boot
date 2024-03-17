@@ -6,14 +6,15 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Setter
 @Getter
 @Builder
 @Document(collection = "chat_room")
 public class ChatRoom {
     @Id
-    private String id;
     private String chatId;
-    private String senderId;
-    private String receiverId;
+    private List<String> participants;
+    private ChatMessage lastMessage;
 }
