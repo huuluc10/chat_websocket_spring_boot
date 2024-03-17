@@ -11,12 +11,12 @@ import java.util.Date;
 @Setter
 @Getter
 @Builder
-@Document
+@Document(collection = "chat_message")
 public class ChatMessage {
     @Id
     private String id;
     private String chatId;
-    private String content;
+    private String message;
     private String sender;
     private String receiver;
     private Date timestamp;
