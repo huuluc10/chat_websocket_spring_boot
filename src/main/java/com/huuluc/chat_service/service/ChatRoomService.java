@@ -17,11 +17,7 @@ public class ChatRoomService{
         return chatRoomRepository.findById(chatId).orElse(null);
     }
 
-    public ChatRoom updateChatRoom(CreateChatRoomRequest request){
-        ChatRoom chatRoom = ChatRoom.builder()
-                .participants(request.getParticipants())
-                .lastMessage(request.getLastMessage())
-                .build();
+    public ChatRoom updateChatRoom(ChatRoom chatRoom){
         return chatRoomRepository.save(chatRoom);
     }
 

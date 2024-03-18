@@ -8,6 +8,7 @@ import java.util.List;
 @Setter
 @Getter
 @AllArgsConstructor
+@Builder
 public class CreateChatRoomRequest {
     private List<String> participants;
     private ChatMessage lastMessage;
