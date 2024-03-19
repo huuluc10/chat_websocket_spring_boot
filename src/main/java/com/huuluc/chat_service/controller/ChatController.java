@@ -24,9 +24,9 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class ChatController {
-    private SimpMessagingTemplate simpMessagingTemplate;
-    private ChatRoomService chatRoomService;
-    private ChatMessageService chatMessageService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final ChatRoomService chatRoomService;
+    private final ChatMessageService chatMessageService;
     @MessageMapping("/chat/{chatId}")
     @SendTo("/user/chat/{chatId}")
     public ChatMessage sendMessageWithWebsocket(@DestinationVariable String chatId,
