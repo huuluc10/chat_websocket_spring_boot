@@ -15,6 +15,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
 import java.util.ArrayList;
@@ -33,8 +34,8 @@ public class ChatController {
     private final UserAppService userAppService;
 
     @MessageMapping("/chat/{chatId}")
-    @SendTo("/user/chat/{chatId}")
-    public ChatMessage sendMessageWithWebsocket(@DestinationVariable String chatId,
+//    @SendToUser("/user/{username}/chat/{chatId}")
+    public void sendMessageWithWebsocket(@DestinationVariable String chatId,
                                                       @Payload Message<ChatMessage> message) {
         log.info("new message arrived in chat with id {}", chatId);
         log.info("{} to {} at {}", message.getPayload().getSender(), message.getPayload().getReceiver(), message.getPayload().getTimestamp());
@@ -60,11 +61,12 @@ public class ChatController {
 
         // Send chat room to each participant
         for (String participant : participants) {
-            simpMessagingTemplate.convertAndSendToUser(participant, "/chats", chatRoom);
+            simpMessagingTemplate.convertAndSendToUser(participant, "/queue/chat/" + chatId, message);
+            simpMessagingTemplate.convertAndSendToUser(participant, "/queue/chats", chatRoom);
         }
 
         // Save message to database
         chatMessageService.saveChatMessage(chatMessage);
-        return chatMessage;
+//        return chatMessage;
     }
 }
