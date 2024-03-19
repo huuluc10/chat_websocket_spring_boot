@@ -2,9 +2,11 @@ package com.huuluc.chat_service.controller;
 
 import com.huuluc.chat_service.model.ChatMessage;
 import com.huuluc.chat_service.model.ChatRoom;
+import com.huuluc.chat_service.model.UserApp;
 import com.huuluc.chat_service.model.request.CreateChatRoomRequest;
 import com.huuluc.chat_service.service.ChatMessageService;
 import com.huuluc.chat_service.service.ChatRoomService;
+import com.huuluc.chat_service.service.UserAppService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -28,6 +30,8 @@ public class ChatController {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final ChatRoomService chatRoomService;
     private final ChatMessageService chatMessageService;
+    private final UserAppService userAppService;
+
     @MessageMapping("/chat/{chatId}")
     @SendTo("/user/chat/{chatId}")
     public ChatMessage sendMessageWithWebsocket(@DestinationVariable String chatId,
@@ -40,6 +44,15 @@ public class ChatController {
         // Get participants from chatId
         ChatMessage chatMessage = message.getPayload();
         List<String> participants = Arrays.asList(chatMessage.getSender(), chatMessage.getReceiver());
+
+        // Create user if not exist
+        for (String participant : participants) {
+            if (!userAppService.isUserAppExist(participant)) {
+                String avartarUrl = "images/avatars/" + participant + ".png";
+                UserApp userApp = new UserApp(participant, avartarUrl);
+                userAppService.createUserApp(userApp);
+            }
+        }
 
         // Update chat room
         ChatRoom chatRoom = chatRoomService.updateChatRoom(chatMessage);
