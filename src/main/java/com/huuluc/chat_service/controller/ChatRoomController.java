@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ public class ChatRoomController {
     }
 
     @GetMapping("/chat-room")
-    public ChatRoom getChatRoomById(@RequestBody FindChatRoomRequest request) {
+    public Optional<ChatRoom> getChatRoomById(@RequestBody FindChatRoomRequest request) {
         return chatRoomService.existsByParticipants(request.getParticipants());
     }
 

@@ -1,12 +1,15 @@
 package com.huuluc.chat_service.service;
 
+import com.huuluc.chat_service.model.ChatMessage;
 import com.huuluc.chat_service.model.ChatRoom;
 import com.huuluc.chat_service.model.request.CreateChatRoomRequest;
 import com.huuluc.chat_service.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +32,30 @@ public class ChatRoomService{
         return chatRoomRepository.save(chatRoom);
     }
 
-    public ChatRoom existsByParticipants(List<String> participants) {
+    public Optional<ChatRoom> existsByParticipants(List<String> participants) {
         return chatRoomRepository.existsByParticipants(participants);
+    }
+
+    public ChatRoom updateChatRoom(ChatMessage chatMessage) {
+        List<String> participants = new ArrayList<>();
+        participants.add(chatMessage.getSender());
+        participants.add(chatMessage.getReceiver());
+        //Check if chat room exists
+        Optional<ChatRoom> chatRoomOptional = this.existsByParticipants(participants);
+
+        ChatRoom chatRoom;
+        if (chatRoomOptional.isEmpty()){
+            CreateChatRoomRequest request = CreateChatRoomRequest.builder()
+                    .participants(participants)
+                    .lastMessage(chatMessage)
+                    .build();
+            chatRoom = this.createChatRoom(request);
+        } else {
+            chatRoom = chatRoomOptional.get();
+            chatRoom.setLastMessage(chatMessage);
+            this.updateChatRoom(chatRoom);
+        }
+        return chatRoom;
     }
 
 }
