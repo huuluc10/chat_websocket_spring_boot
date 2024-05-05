@@ -9,6 +9,7 @@ import com.huuluc.chat_service.service.ChatRoomService;
 import com.huuluc.chat_service.service.UserAppService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -17,6 +18,8 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +37,6 @@ public class ChatController {
     private final UserAppService userAppService;
 
     @MessageMapping("/chat/{chatId}")
-//    @SendToUser("/user/{username}/chat/{chatId}")
     public void sendMessageWithWebsocket(@DestinationVariable String chatId,
                                                       @Payload Message<ChatMessage> message) {
         log.info("new message arrived in chat with id {}", chatId);
@@ -59,14 +61,18 @@ public class ChatController {
         ChatRoom chatRoom = chatRoomService.updateChatRoom(chatMessage);
 
 
-        // Send chat room to each participant
-        for (String participant : participants) {
-            simpMessagingTemplate.convertAndSendToUser(participant, "/queue/chat/" + chatId, message);
-            simpMessagingTemplate.convertAndSendToUser(participant, "/queue/chats", chatRoom);
-        }
+        simpMessagingTemplate.convertAndSendToUser(message.getPayload().getReceiver(), "/queue/chat/" + chatId, message);
+        simpMessagingTemplate.convertAndSendToUser(message.getPayload().getReceiver(), "/queue/chats", chatRoom);
 
         // Save message to database
         chatMessageService.saveChatMessage(chatMessage);
 //        return chatMessage;
+    }
+
+    @GetMapping("/chat/{chatId}/history")
+    public ResponseEntity<List<ChatMessage>> getChatHistory(@PathVariable String chatId) {
+        log.info("Get chat history of chat with id {}", chatId);
+        List<ChatMessage> chatHistory = chatMessageService.getChatHistory(chatId);
+        return ResponseEntity.ok(chatHistory);
     }
 }

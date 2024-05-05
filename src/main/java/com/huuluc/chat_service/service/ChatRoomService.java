@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static java.rmi.server.LogStream.log;
+
 @Service
 @RequiredArgsConstructor
 public class ChatRoomService{
@@ -58,4 +60,9 @@ public class ChatRoomService{
         return chatRoom;
     }
 
+    public List<ChatRoom> getChatRoomByParticipant(String participant) {
+        log("Get chat room by participant: " + participant);
+        Optional<List<ChatRoom>> chatRooms = chatRoomRepository.getChatRoomByParticipant(participant);
+        return chatRooms.orElseGet(ArrayList::new);
+    }
 }
