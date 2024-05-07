@@ -59,6 +59,9 @@ public class ChatController {
         for (UserApp participant : participants) {
             if (!userAppService.isUserAppExist(participant.getUsername())) {
                 userAppService.createUserApp(participant);
+            } else {
+                userAppService.updateAvatar(participant);
+                userAppService.updateAvatar(participant);
             }
         }
 

@@ -47,19 +47,6 @@ public class ChatRoomService{
         participants.add(chatMessage.getSender());
         participants.add(chatMessage.getReceiver());
 
-        UserApp sender = UserApp.builder()
-                .username(chatMessage.getSender())
-                .avatar(chatMessage.getSenderAvatar())
-                .build();
-
-        UserApp receiver = UserApp.builder()
-                .username(chatMessage.getReceiver())
-                .avatar(chatMessage.getReceiverAvatar())
-                .build();
-
-        userAppService.updateAvatar(sender);
-        userAppService.updateAvatar(receiver);
-
         //Check if chat room exists
         Optional<ChatRoom> chatRoomOptional = this.existsByParticipants(participants);
 
