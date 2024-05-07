@@ -36,24 +36,29 @@ public class ChatController {
     private final ChatMessageService chatMessageService;
     private final UserAppService userAppService;
 
-    @MessageMapping("/chat/{chatId}")
-    public void sendMessageWithWebsocket(@DestinationVariable String chatId,
+    @MessageMapping("/chat")
+    public void sendMessageWithWebsocket(
                                                       @Payload Message<ChatMessage> message) {
-        log.info("new message arrived in chat with id {}", chatId);
         log.info("{} to {} at {}", message.getPayload().getSender(), message.getPayload().getReceiver(), message.getPayload().getTimestamp());
         log.info("content: {}", message.getPayload().getMessage());
         log.info("Id: {}", message.getPayload().getId());
 
         // Get participants from chatId
         ChatMessage chatMessage = message.getPayload();
-        List<String> participants = Arrays.asList(chatMessage.getSender(), chatMessage.getReceiver());
+        List<UserApp> participants = new ArrayList<>();
+        participants.add(UserApp.builder()
+                .username(chatMessage.getSender())
+                .avatar(chatMessage.getSenderAvatar())
+                .build());
+        participants.add(UserApp.builder()
+                .username(chatMessage.getReceiver())
+                .avatar(chatMessage.getReceiverAvatar())
+                .build());
 
         // Create user if not exist
-        for (String participant : participants) {
-            if (!userAppService.isUserAppExist(participant)) {
-                String avartarUrl = "images/avatars/" + participant + ".png";
-                UserApp userApp = new UserApp(participant, avartarUrl);
-                userAppService.createUserApp(userApp);
+        for (UserApp participant : participants) {
+            if (!userAppService.isUserAppExist(participant.getUsername())) {
+                userAppService.createUserApp(participant);
             }
         }
 
@@ -61,12 +66,11 @@ public class ChatController {
         ChatRoom chatRoom = chatRoomService.updateChatRoom(chatMessage);
 
 
-        simpMessagingTemplate.convertAndSendToUser(message.getPayload().getReceiver(), "/queue/chat/" + chatId, message);
+        simpMessagingTemplate.convertAndSendToUser(message.getPayload().getReceiver(), "/queue/chat/" + chatRoom.getChatId(), message);
         simpMessagingTemplate.convertAndSendToUser(message.getPayload().getReceiver(), "/queue/chats", chatRoom);
 
         // Save message to database
         chatMessageService.saveChatMessage(chatMessage);
-//        return chatMessage;
     }
 
     @GetMapping("/chat/{chatId}/history")

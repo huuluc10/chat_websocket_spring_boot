@@ -5,16 +5,18 @@ import com.huuluc.chat_service.model.ChatRoom;
 import com.huuluc.chat_service.model.request.CreateChatRoomRequest;
 import com.huuluc.chat_service.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-import static java.rmi.server.LogStream.log;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChatRoomService{
     private final ChatRoomRepository chatRoomRepository;
 
@@ -22,12 +24,10 @@ public class ChatRoomService{
         return chatRoomRepository.findById(chatId).orElse(null);
     }
 
-    public ChatRoom updateChatRoom(ChatRoom chatRoom){
-        return chatRoomRepository.save(chatRoom);
-    }
 
     public ChatRoom createChatRoom(CreateChatRoomRequest request){
         ChatRoom chatRoom = ChatRoom.builder()
+                .chatId(request.getChatId())
                 .participants(request.getParticipants())
                 .lastMessage(request.getLastMessage())
                 .build();
@@ -47,21 +47,27 @@ public class ChatRoomService{
 
         ChatRoom chatRoom;
         if (chatRoomOptional.isEmpty()){
+            String chatId = UUID.randomUUID().toString();
+            chatMessage.setChatId(chatId);
             CreateChatRoomRequest request = CreateChatRoomRequest.builder()
+                    .chatId(chatId)
                     .participants(participants)
                     .lastMessage(chatMessage)
                     .build();
             chatRoom = this.createChatRoom(request);
         } else {
             chatRoom = chatRoomOptional.get();
+            chatMessage.setChatId(chatRoom.getChatId());
             chatRoom.setLastMessage(chatMessage);
-            this.updateChatRoom(chatRoom);
+            // Delete old chat room and save new chat room
+            chatRoomRepository.deleteById(chatRoom.getId());
+            chatRoomRepository.save(chatRoom);
         }
         return chatRoom;
     }
 
     public List<ChatRoom> getChatRoomByParticipant(String participant) {
-        log("Get chat room by participant: " + participant);
+        log.info("Get chat room by participant: " + participant);
         Optional<List<ChatRoom>> chatRooms = chatRoomRepository.getChatRoomByParticipant(participant);
         return chatRooms.orElseGet(ArrayList::new);
     }

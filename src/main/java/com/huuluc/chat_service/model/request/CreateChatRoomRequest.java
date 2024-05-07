@@ -10,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class CreateChatRoomRequest {
+    private String chatId;
     private List<String> participants;
     private ChatMessage lastMessage;
 }

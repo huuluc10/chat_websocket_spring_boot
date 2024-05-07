@@ -18,6 +18,8 @@ public class ChatMessage {
     private String chatId;
     private String message;
     private String sender;
+    private String senderAvatar;
     private String receiver;
+    private String receiverAvatar;
     private Date timestamp;
 }

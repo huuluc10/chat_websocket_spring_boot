@@ -14,6 +14,7 @@ import java.util.List;
 @Document(collection = "chat_room")
 public class ChatRoom {
     @Id
+    private String id;
     private String chatId;
     private List<String> participants;
     private ChatMessage lastMessage;
