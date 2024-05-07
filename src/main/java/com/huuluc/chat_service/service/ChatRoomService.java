@@ -2,8 +2,10 @@ package com.huuluc.chat_service.service;
 
 import com.huuluc.chat_service.model.ChatMessage;
 import com.huuluc.chat_service.model.ChatRoom;
+import com.huuluc.chat_service.model.UserApp;
 import com.huuluc.chat_service.model.request.CreateChatRoomRequest;
 import com.huuluc.chat_service.repository.ChatRoomRepository;
+import com.huuluc.chat_service.repository.UserAppRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,9 +21,10 @@ import java.util.UUID;
 @Slf4j
 public class ChatRoomService{
     private final ChatRoomRepository chatRoomRepository;
+    private final UserAppService userAppService;
 
-    public ChatRoom getChatRoomById(String chatId){
-        return chatRoomRepository.findById(chatId).orElse(null);
+    public Optional<ChatRoom> getChatRoomByChatId(String chatId){
+        return chatRoomRepository.findByChatId(chatId);
     }
 
 
@@ -30,6 +33,7 @@ public class ChatRoomService{
                 .chatId(request.getChatId())
                 .participants(request.getParticipants())
                 .lastMessage(request.getLastMessage())
+                .isSeen(false)
                 .build();
         return chatRoomRepository.save(chatRoom);
     }
@@ -42,6 +46,20 @@ public class ChatRoomService{
         List<String> participants = new ArrayList<>();
         participants.add(chatMessage.getSender());
         participants.add(chatMessage.getReceiver());
+
+        UserApp sender = UserApp.builder()
+                .username(chatMessage.getSender())
+                .avatar(chatMessage.getSenderAvatar())
+                .build();
+
+        UserApp receiver = UserApp.builder()
+                .username(chatMessage.getReceiver())
+                .avatar(chatMessage.getReceiverAvatar())
+                .build();
+
+        userAppService.updateAvatar(sender);
+        userAppService.updateAvatar(receiver);
+
         //Check if chat room exists
         Optional<ChatRoom> chatRoomOptional = this.existsByParticipants(participants);
 
@@ -59,6 +77,7 @@ public class ChatRoomService{
             chatRoom = chatRoomOptional.get();
             chatMessage.setChatId(chatRoom.getChatId());
             chatRoom.setLastMessage(chatMessage);
+            chatRoom.setSeen(false);
             // Delete old chat room and save new chat room
             chatRoomRepository.deleteById(chatRoom.getId());
             chatRoomRepository.save(chatRoom);
@@ -70,5 +89,20 @@ public class ChatRoomService{
         log.info("Get chat room by participant: " + participant);
         Optional<List<ChatRoom>> chatRooms = chatRoomRepository.getChatRoomByParticipant(participant);
         return chatRooms.orElseGet(ArrayList::new);
+    }
+
+    public ChatRoom markChatRoomAsSeen(String chatId) {
+        log.info("Mark chat room as seen by chatId: " + chatId);
+        //Check if chat room exists
+        Optional<ChatRoom> chatRoomOptional = this.getChatRoomByChatId(chatId);
+
+        if (chatRoomOptional.isEmpty()){
+            return null;
+        }
+        ChatRoom chatRoom = chatRoomOptional.get();
+
+        chatRoomRepository.deleteById(chatRoom.getId());
+        chatRoom.setSeen(true);
+        return chatRoomRepository.save(chatRoom);
     }
 }

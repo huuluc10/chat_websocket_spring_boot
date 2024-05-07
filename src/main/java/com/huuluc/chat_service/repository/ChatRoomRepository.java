@@ -15,4 +15,8 @@ public interface ChatRoomRepository extends MongoRepository<ChatRoom, String> {
 
     @Query(value = "{\"participants\": ?0}")
     Optional<List<ChatRoom>> getChatRoomByParticipant(String participant);
+
+    @Query(value = "{\"chatId\": ?0}")
+    Optional<ChatRoom> findByChatId(String chatId);
+
 }

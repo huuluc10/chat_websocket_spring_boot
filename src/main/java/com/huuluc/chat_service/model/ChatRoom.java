@@ -18,4 +18,5 @@ public class ChatRoom {
     private String chatId;
     private List<String> participants;
     private ChatMessage lastMessage;
+    private boolean isSeen;
 }

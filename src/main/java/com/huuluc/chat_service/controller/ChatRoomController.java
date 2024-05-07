@@ -34,4 +34,10 @@ public class ChatRoomController {
         log.info("Get chat room by participant: {}", participant);
         return chatRoomService.getChatRoomByParticipant(participant);
     }
+
+    @PostMapping("/chat-room/update")
+    public ChatRoom markChatRoomAsSeen(@RequestParam String chatId) {
+        log.info("Mark chat room as seen by chatId: {}", chatId);
+        return chatRoomService.markChatRoomAsSeen(chatId);
+    }
 }

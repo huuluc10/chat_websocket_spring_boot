@@ -31,4 +31,22 @@ public class UserAppService {
     public List<UserApp> getAllUserApp() {
         return userAppRepository.findAll();
     }
+
+    public int updateAvatar(UserApp newData) {
+        String username = newData.getUsername();
+
+        UserApp userInDB = userAppRepository.findById(username).orElse(null);
+
+        if (userInDB == null) {
+            return -1;
+        }
+
+        if (!newData.getAvatar().equals(userInDB.getAvatar())) {
+            userAppRepository.deleteById(username);
+            userAppRepository.save(newData);
+            return 1;
+        }
+
+        return -1;
+    }
 }
