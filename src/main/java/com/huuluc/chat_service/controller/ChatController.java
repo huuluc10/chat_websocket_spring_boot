@@ -37,11 +37,8 @@ public class ChatController {
     private final UserAppService userAppService;
 
     @MessageMapping("/chat")
-    public void sendMessageWithWebsocket(
-                                                      @Payload Message<ChatMessage> message) {
+    public void sendMessageWithWebsocket(@Payload Message<ChatMessage> message) {
         log.info("{} to {} at {}", message.getPayload().getSender(), message.getPayload().getReceiver(), message.getPayload().getTimestamp());
-        log.info("content: {}", message.getPayload().getMessage());
-        log.info("Id: {}", message.getPayload().getId());
 
         // Get participants from chatId
         ChatMessage chatMessage = message.getPayload();
