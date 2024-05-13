@@ -58,7 +58,6 @@ public class ChatController {
                 userAppService.createUserApp(participant);
             } else {
                 userAppService.updateAvatar(participant);
-                userAppService.updateAvatar(participant);
             }
         }
 
@@ -66,7 +65,7 @@ public class ChatController {
         ChatRoom chatRoom = chatRoomService.updateChatRoom(chatMessage);
 
 
-        simpMessagingTemplate.convertAndSendToUser(message.getPayload().getReceiver(), "/queue/chat/" + chatRoom.getChatId(), message);
+        simpMessagingTemplate.convertAndSendToUser(message.getPayload().getReceiver(), "/queue/chat/" + chatRoom.getChatId(), message.getPayload());
         simpMessagingTemplate.convertAndSendToUser(message.getPayload().getReceiver(), "/queue/chats", chatRoom);
 
         // Save message to database

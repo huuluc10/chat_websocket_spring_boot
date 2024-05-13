@@ -12,5 +12,4 @@ import java.util.List;
 public class CreateChatRoomRequest {
     private String chatId;
     private List<String> participants;
-    private ChatMessage lastMessage;
 }
