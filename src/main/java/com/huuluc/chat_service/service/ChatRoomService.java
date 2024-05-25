@@ -4,11 +4,15 @@ import com.huuluc.chat_service.model.ChatMessage;
 import com.huuluc.chat_service.model.ChatRoom;
 import com.huuluc.chat_service.model.request.CreateChatRoomRequest;
 import com.huuluc.chat_service.repository.ChatRoomRepository;
+import com.huuluc.englearn.utils.HeadersHTTP;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,8 +48,11 @@ public class ChatRoomService{
     public ResponseEntity<ChatRoom> existsByParticipants(List<String> participants) {
         Optional<ChatRoom> chatRoom = chatRoomRepository.existsByParticipants(participants);
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType(HeadersHTTP.MEDIA_TYPE, HeadersHTTP.MEDIA_SUBTYPE, StandardCharsets.UTF_8));
+
         if (chatRoom.isPresent()){
-            return ResponseEntity.ok(chatRoom.get());
+            return ResponseEntity.ok().headers(headers).body(chatRoom.get());
         }
         return ResponseEntity.noContent().build();
     }

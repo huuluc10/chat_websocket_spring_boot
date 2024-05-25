@@ -7,8 +7,11 @@ import com.huuluc.chat_service.model.request.CreateChatRoomRequest;
 import com.huuluc.chat_service.service.ChatMessageService;
 import com.huuluc.chat_service.service.ChatRoomService;
 import com.huuluc.chat_service.service.UserAppService;
+import com.huuluc.englearn.utils.HeadersHTTP;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -76,6 +80,8 @@ public class ChatController {
     public ResponseEntity<List<ChatMessage>> getChatHistory(@PathVariable String chatId) {
         log.info("Get chat history of chat with id {}", chatId);
         List<ChatMessage> chatHistory = chatMessageService.getChatHistory(chatId);
-        return ResponseEntity.ok(chatHistory);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType(HeadersHTTP.MEDIA_TYPE, HeadersHTTP.MEDIA_SUBTYPE, StandardCharsets.UTF_8));
+        return ResponseEntity.ok().headers(headers).body(chatHistory);
     }
 }

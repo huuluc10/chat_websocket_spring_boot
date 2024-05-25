@@ -4,11 +4,15 @@ import com.huuluc.chat_service.model.ChatRoom;
 import com.huuluc.chat_service.model.request.CreateChatRoomRequest;
 import com.huuluc.chat_service.model.request.FindChatRoomRequest;
 import com.huuluc.chat_service.service.ChatRoomService;
+import com.huuluc.englearn.utils.HeadersHTTP;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,9 +35,15 @@ public class ChatRoomController {
     }
 
     @GetMapping("/chat-room")
-    public List<ChatRoom> getChatRoomByParticipant(@RequestParam String participant) {
+    public ResponseEntity<List<ChatRoom>> getChatRoomByParticipant(@RequestParam String participant)
+    {
         log.info("Get chat room by participant: {}", participant);
-        return chatRoomService.getChatRoomByParticipant(participant);
+        List<ChatRoom> chatRooms = chatRoomService.getChatRoomByParticipant(participant);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType(HeadersHTTP.MEDIA_TYPE, HeadersHTTP.MEDIA_SUBTYPE, StandardCharsets.UTF_8));
+
+        return ResponseEntity.ok().headers(headers).body(chatRooms);
     }
 
     @PostMapping("/chat-room/update")
