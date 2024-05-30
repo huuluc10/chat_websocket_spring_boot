@@ -2,8 +2,12 @@ package com.huuluc.chat_service.service;
 
 import com.huuluc.chat_service.model.ChatMessage;
 import com.huuluc.chat_service.model.ChatRoom;
-import com.huuluc.chat_service.model.request.CreateChatRoomRequest;
+import com.huuluc.chat_service.model.UserApp;
+import com.huuluc.chat_service.model.dto.ChatMessagePayload;
+import com.huuluc.chat_service.model.dto.ChatRoomPayload;
+import com.huuluc.chat_service.model.dto.CreateChatRoomRequest;
 import com.huuluc.chat_service.repository.ChatRoomRepository;
+import com.huuluc.chat_service.repository.UserAppRepository;
 import com.huuluc.englearn.utils.HeadersHTTP;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -24,6 +29,7 @@ import java.util.UUID;
 @Slf4j
 public class ChatRoomService{
     private final ChatRoomRepository chatRoomRepository;
+    private final UserAppRepository userAppRepository;
 
     public Optional<ChatRoom> getChatRoomByChatId(String chatId){
         return chatRoomRepository.findByChatId(chatId);
@@ -86,9 +92,10 @@ public class ChatRoomService{
         return chatRoom;
     }
 
-    public List<ChatRoom> getChatRoomByParticipant(String participant) {
+    public List<ChatRoomPayload> getChatRoomByParticipant(String participant) {
         log.info("Get chat room by participant: " + participant);
         Optional<List<ChatRoom>> chatRooms = chatRoomRepository.getChatRoomByParticipant(participant);
+        List<ChatRoomPayload> chatRoomPayloads = new ArrayList<>();
 
          if (chatRooms.isPresent()) {
             for (ChatRoom chatRoom : chatRooms.get()){
@@ -97,7 +104,32 @@ public class ChatRoomService{
                 }
             }
         }
-        return chatRooms.orElseGet(ArrayList::new);
+
+         for (ChatRoom chatRoom : chatRooms.get()){
+             ChatRoomPayload chatRoomPayload = ChatRoomPayload.builder()
+                     .chatId(chatRoom.getChatId())
+                     .participants(chatRoom.getParticipants().stream().filter(p -> !p.equals(participant)).collect(Collectors.toList()))
+                     .lastMessage(null)
+                     .isSeen(chatRoom.isSeen())
+                     .build();
+
+             ChatMessage lastMessage = chatRoom.getLastMessage();
+
+             String sender = lastMessage.getSender();
+             String senderAvatar = userAppRepository.findByUsername(sender).getAvatar();
+             String receiver = lastMessage.getReceiver();
+             String receiverAvatar = userAppRepository.findByUsername(receiver).getAvatar();
+
+             ChatMessagePayload chatMessagePayload = new ChatMessagePayload(lastMessage);
+             chatMessagePayload.setChatId(chatRoom.getChatId());
+             chatMessagePayload.setSenderAvatar(senderAvatar);
+             chatMessagePayload.setReceiverAvatar(receiverAvatar);
+
+             chatRoomPayload.setLastMessage(chatMessagePayload);
+             chatRoomPayloads.add(chatRoomPayload);
+            }
+
+        return chatRoomPayloads;
     }
 
     public ChatRoom markChatRoomAsSeen(String chatId) {

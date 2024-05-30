@@ -1,4 +1,4 @@
-package com.huuluc.chat_service.model.request;
+package com.huuluc.chat_service.model.dto;
 
 import lombok.Getter;
 

@@ -1,8 +1,9 @@
 package com.huuluc.chat_service.controller;
 
 import com.huuluc.chat_service.model.ChatRoom;
-import com.huuluc.chat_service.model.request.CreateChatRoomRequest;
-import com.huuluc.chat_service.model.request.FindChatRoomRequest;
+import com.huuluc.chat_service.model.dto.ChatRoomPayload;
+import com.huuluc.chat_service.model.dto.CreateChatRoomRequest;
+import com.huuluc.chat_service.model.dto.FindChatRoomRequest;
 import com.huuluc.chat_service.service.ChatRoomService;
 import com.huuluc.englearn.utils.HeadersHTTP;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,10 +35,10 @@ public class ChatRoomController {
     }
 
     @GetMapping("/chat-room")
-    public ResponseEntity<List<ChatRoom>> getChatRoomByParticipant(@RequestParam String participant)
+    public ResponseEntity<List<ChatRoomPayload>> getChatRoomByParticipant(@RequestParam String participant)
     {
         log.info("Get chat room by participant: {}", participant);
-        List<ChatRoom> chatRooms = chatRoomService.getChatRoomByParticipant(participant);
+        List<ChatRoomPayload> chatRooms = chatRoomService.getChatRoomByParticipant(participant);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType(HeadersHTTP.MEDIA_TYPE, HeadersHTTP.MEDIA_SUBTYPE, StandardCharsets.UTF_8));
