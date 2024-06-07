@@ -1,6 +1,5 @@
-package com.huuluc.chat_service.model.request;
+package com.huuluc.chat_service.model.dto;
 
-import com.huuluc.chat_service.model.ChatMessage;
 import lombok.*;
 
 import java.util.List;
@@ -10,6 +9,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class CreateChatRoomRequest {
+    private String chatId;
     private List<String> participants;
-    private ChatMessage lastMessage;
 }

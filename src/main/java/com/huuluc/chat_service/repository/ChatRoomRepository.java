@@ -12,4 +12,11 @@ import java.util.Optional;
 public interface ChatRoomRepository extends MongoRepository<ChatRoom, String> {
     @Query(value = "{\"participants\": { $all: ?0 }}")
     Optional<ChatRoom> existsByParticipants(List<String> participants);
+
+    @Query(value = "{\"participants\": ?0}")
+    Optional<List<ChatRoom>> getChatRoomByParticipant(String participant);
+
+    @Query(value = "{\"chatId\": ?0}")
+    Optional<ChatRoom> findByChatId(String chatId);
+
 }
