@@ -73,6 +73,8 @@ public class ChatController {
         chatMessagePayload.setSenderAvatar(senderAvatar);
         chatMessagePayload.setReceiverAvatar(receiverAvatar);
 
+        chatMessage.setChatId(chatRoom.getChatId());
+
         ChatRoomPayload chatRoomPayload = ChatRoomPayload.builder()
                 .chatId(chatRoom.getChatId())
                 .participants(chatRoom.getParticipants())
@@ -80,10 +82,12 @@ public class ChatController {
                 .isSeen(chatRoom.isSeen())
                 .build();
 
+        message.getPayload().setChatId(chatRoom.getChatId());
+
         simpMessagingTemplate.convertAndSendToUser(message.getPayload().getReceiver(), "/queue/chat/" + chatRoom.getChatId(), message.getPayload());
         simpMessagingTemplate.convertAndSendToUser(message.getPayload().getReceiver(), "/queue/chats", chatRoomPayload);
 
-        chatMessage.setChatId(chatRoom.getChatId());
+
 
         // Save message to database
         chatMessageService.saveChatMessage(chatMessage);
